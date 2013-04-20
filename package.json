@@ -1,0 +1,22 @@
+{
+  "name"        : "ya-promise"
+, "version"     : "0.1.0"
+, "description" : "Yet Another promise/A+ library"
+, "keywords"    : ["defer", "deferred", "promise", "promise/A", "promise/A+"
+		  , "A+" ]
+, "homepage"    : "https://github/com/lleo/ya-deferred"
+, "repository"  : { "type": "git"
+                  , "url": "https://github.com/lleo/ya-deferred" }
+, "bug"         : { "url": "https://github.com/lleo/ya-deferred/issues"
+                  , "email": "lleoem@gmail.com" }
+, "author"      : { "name": "LLeo"
+                  , "email": "lleoem@gmail.com"
+                  , "url": "http://lleo-blog.blogspot.com/" }
+, "main"        : "lib/deferred.js"
+, "scripts"     : { "test": "promises-aplus-tests test/adapter" }
+
+, "dependencies": {}
+, "devDependencies": { "mocha" : "*"
+		     , "chai"  : "*" }
+, "engines"     : { "node" : ">=0.10.0" }
+}
