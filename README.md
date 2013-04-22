@@ -23,15 +23,21 @@ executed using the [bench][bench] Node.js module.
 
 ## API
 
-`Y = require('ya-promise')`
+* `Y = require("ya-promise")`
+  Load the library.
 
-`Y(value_or_promise)` returns a promise. Equivalent to `Y.when()`
+* `Y(value_or_promise)`
+  Returns a promise. Equivalent to `Y.when()`
 
-`Y.when(value_or_promise)`
+* `Y.when(value_or_promise)`
+  Just like `Q.when()`. If the argument is a _thenable_ it is returned.
+  Otherwise a promise is returned, reolved to the given value.
 
-`Y.promisify`
-
-`Y.nfbind`
+* `Y.promisify`
+* `Y.nfbind`
+  Convert a _node-style_ asynce function
+  `nodeFunc(a,b,function(err, ...results){})` to promise returning async
+  function `promise = promFunc(a,b)`. Ex `promFunc = Y.promisify( nodeFunc )`.
 
 ## Benchmarks
 
