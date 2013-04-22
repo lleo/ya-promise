@@ -27,25 +27,38 @@ executed using the [bench][bench] Node.js module.
 
 ## API
 
-* `Y = require("ya-promise")`
+### Load Module
+```javascript
+var Y = require("ya-promise")
+```
+Load the library.
 
-  Load the library.
 
-* `Y(value_or_promise)`
+### Convert a value or a foreign Promise to a Y Promise
+```javascript
+Y(value_or_promise)
+Y.when(value_or_promise)
+```
+Returns a `ya-promise` promise given a straight value or a
+[thenable][terminology].
 
-  Returns a promise. Equivalent to `Y.when()`
+### Convert a **node-style** async function to a **promise-style** async function.
+```javascript
+promiseFn = Y.promisify(nodeFn)
+promiseFn = Y.nfbind(nodeFn)
+```
 
-* `Y.when(value_or_promise)`
+A **node-style** async function looks like this
+```javascript
+nodeFn(arg0, arg1, function(err, res0, res1){ ... })
+```
+where the return value of `nodeFn` is usually `undefined`.
 
-  Just like `Q.when()`. If the argument is a _thenable_ it is returned.
-  Otherwise a promise is returned, reolved to the given value.
-
-* `Y.promisify`
-* `Y.nfbind`
-
-  Convert a _node-style_ asynce function
-  `nodeFunc(a,b,function(err, ...results){})` to promise returning async
-  function `promise = promFunc(a,b)`. Ex `promFunc = Y.promisify( nodeFunc )`.
+The corresponding **promise-style** async function look like this
+```javascript
+promise = promiseFn(arg0, arg1)
+promise.then(function([res0, res1]){ ... }, function(err){ ... })
+```
 
 ## Benchmarks
 
@@ -108,3 +121,5 @@ require('bench').runMain()
   "Q mdoule"
 [bench]: https://npmjs.org/package/bench
   "bench module"
+[terminology]: https://github.com/promises-aplus/promises-spec#terminology
+  "Promise/A+ terminology"
