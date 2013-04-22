@@ -8,12 +8,16 @@ This library implements [the promise/A+ specfication][AplusSpec] and passes
 [the Promise/A+ test suite][AplusTest].
 
 The goals were to create a Promse/A+ library:
-1) using the _deferred_ pattern.
-2) defaulting to `setImmediate` due to Node.js v0.10+ warning about recursive
+
+1. using the _deferred_ pattern.
+
+2. defaulting to `setImmediate` due to Node.js v0.10+ warning about recursive
    calls to `process.nextTick`. And I needed to use VERY deep promise
    chains/sequences..
-3) allow for overriding this _nextTick_-like behaviour as needed.
-4) speed.
+
+3. allow for overriding this _nextTick_-like behaviour as needed.
+
+4. speed.
 
 Additional helper functions are implemented that do not impact performance. As
 for performance, this library performs better than [p-promise v0.1.4][p-promise],
