@@ -34,10 +34,10 @@ var Y = require("ya-promise")
 Load the library.
 
 
-### Convert a value or a foreign Promise to a Y Promise
+### Convert a value or a foreign Promise (_thenable_[terminology]) to a Y Promise
 ```javascript
-Y(value_or_promise)
-Y.when(value_or_promise)
+Y(value_or_thanable)
+Y.when(value_or_thenable)
 ```
 Returns a `ya-promise` promise given a straight value or a
 [thenable][terminology].
@@ -47,6 +47,7 @@ Returns a `ya-promise` promise given a straight value or a
 promiseFn = Y.promisify(nodeFn)
 promiseFn = Y.nfbind(nodeFn)
 ```
+<small>NOTE: `Y.nfbind` and `Y.promisify` are just like `Q.nfbind`</small>
 
 A **node-style** async function looks like this
 ```javascript
