@@ -72,43 +72,6 @@ Y.reolved(42).then( function(value){ value == 42 }
 Y.rejected("oops").then( function(value){/*never called*/}
                        , function(reason){ reason == "oops" })
 ```
-
-## Implementation
-
-### `then`, `reject`, & `resolve` are closures not methods
-
-This is a cute fact about the implementation that has a few implications.
-
-For 
-```javascript
-var deferred = Y.defer()
-```
-`deferred.resolve` and `deferred.reject` are closures not methods. That
-means that you could separate the function `foo = deferred.resolve` from
-the `deferred` object and calling `foo(value)` will still work.
-
-Basically, `deferred` is just a plain javascript object `{}` with three
-named values `promise`, `resolve`, and `reject`.
-
-For that matter, `promise.then` is a closure not a method. If you look at
-it `promise` only contains a `then` entry.
-
-This turns out to be a good thing for two reasons:
-
-1. Converting a foreign promise to a `ya-promise` promise is easy.
-```javascript
-function convert(foreign_promise){
-  var deferred = Y.defer()
-  foreign_promise.then(deferred.resolve, deferred.reject)
-  return deferred.promise
-}
-```
-
-2. There is no way to access to the internals of the `deferred` or `promise`
-   mechanisms. They are truely private.
-
-FIXME: THIS COULD BE A PROBLEM
-
 ## Benchmarks
 
 It was just tested with the following simple script.
@@ -156,6 +119,95 @@ exports.compare = {
 require('bench').runMain()
 ```
 
+## Implementation
+
+### Performance Lessons Learned
+
+#### Constructors do not HAVE to be more expensive then Plain-Ole-Objects
+
+IE `new Promise(thenFn)` does not have to be more expensive than
+`{ then: thenFn }`.
+
+### `then`, `reject`, & `resolve` are closures not methods
+
+This is total [tl;dr][tldr]. ("To Long Don't Read" for non-internet-hipsters, like me:).
+
+This is a cute fact about the implementation that has a few implications.
+
+For 
+```javascript
+var deferred = Y.defer()
+```
+`deferred.resolve` and `deferred.reject` are closures not methods. That
+means that you could separate the function `foo = deferred.resolve` from
+the `deferred` object and calling `foo(value)` will still work.
+
+Basically, `deferred` is just a plain javascript object `{}` with three
+named values `promise`, `resolve`, and `reject`.
+
+For that matter, `promise.then` is a closure not a method. If you look at
+it `promise` only contains a `then` entry.
+
+This turns out to be a good thing for two reasons, and bad for one reason:
+
+1. Converting a foreign promise to a `ya-promise` promise is easy.
+```javascript
+function convert(foreign_promise){
+  var deferred = Y.defer()
+  foreign_promise.then(deferred.resolve, deferred.reject)
+  return deferred.promise
+}
+```
+
+2. There is no way to access to the internals of the `deferred` or `promise`
+   mechanisms. They are truely private.
+
+This could be bad when the initial `deferred.resolve` is called, it replaces
+`deferred.resolve` with a new function. So, if you copy the original function
+to a new variable AND that function gets called twice it will call the
+previous queued up `then` functions twice as well. Simple don't do what I did
+above in `1.` do the following instead:
+
+```javascript
+function convert(foreign_promise){
+  var deferred = Y.defer()
+  foreign_promise.then( function(value) { deferred.resolve(value) }
+                      , function(reason){ deferred.reject(reasone) })
+  return deferred.promise
+}
+```
+
+Put in terms of code the folowing function returns `true`:
+
+```javascript
+function compareResolves(){
+  var deferred = Y.defer()
+    , resolveFnBefore = deferred.resolve
+
+  deferred.resolve("whatever")  //this function call changes `deferred.resolve`
+
+  return deferred.resolve !== resolveFnBefore  //returns `true`
+}
+```
+
+This applys to the promise's `then` function as well:
+
+```javascript
+function compareThens(){
+  var deferred = Y.defer()
+   , thenFnBefore = deferred.promise.then
+
+  deferred.resolve("whatever")
+
+  return deferred.promise.then !== thenFnBefore  //returns `true`
+}
+```
+
+Advice: Screw Nike comercials, "Just DON'T Do It". Don't try to be too clever
+by half and take _advantage_ of the fact that `deferred.resolve`,
+`deferred.reject`, and `promise.then` are closures not methods because they
+"close over" `deffered` and `promise` as well.
+
 ## Links
 
 [AplusSpec]: http://promises-aplus.github.io/promises-spec/
@@ -172,3 +224,5 @@ require('bench').runMain()
   "bench module"
 [terminology]: https://github.com/promises-aplus/promises-spec#terminology
   "Promise/A+ terminology"
+[tldr]: http://www.urbandictionary.com/define.php?term=tl%3Bdr
+  "to long; don't read"
