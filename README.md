@@ -47,8 +47,6 @@ Returns a `ya-promise` promise given a straight value or a
 promiseFn = Y.promisify(nodeFn)
 promiseFn = Y.nfbind(nodeFn)
 ```
-<small>NOTE: `Y.nfbind` and `Y.promisify` are just like `Q.nfbind`</small>
-
 A **node-style** async function looks like this
 ```javascript
 nodeFn(arg0, arg1, function(err, res0, res1){ ... })
@@ -60,6 +58,56 @@ The corresponding **promise-style** async function look like this
 promise = promiseFn(arg0, arg1)
 promise.then(function([res0, res1]){ ... }, function(err){ ... })
 ```
+
+### Create a Fulfilled or Rejected Promise
+```javascript
+fulfilled_promise = Y.resolved(value)
+rejected_promise  = Y.rejected(reason)
+```
+examples:
+```javascript
+Y.reolved(42).then( function(value){ value == 42 }
+                  , function(reason){/*never called*/})
+
+Y.rejected("oops").then( function(value){/*never called*/}
+                       , function(reason){ reason == "oops" })
+```
+
+## Implementation
+
+### `then`, `reject`, & `resolve` are closures not methods
+
+This is a cute fact about the implementation that has a few implications.
+
+For 
+```javascript
+var deferred = Y.defer()
+```
+`deferred.resolve` and `deferred.reject` are closures not methods. That
+means that you could separate the function `foo = deferred.resolve` from
+the `deferred` object and calling `foo(value)` will still work.
+
+Basically, `deferred` is just a plain javascript object `{}` with three
+named values `promise`, `resolve`, and `reject`.
+
+For that matter, `promise.then` is a closure not a method. If you look at
+it `promise` only contains a `then` entry.
+
+This turns out to be a good thing for two reasons:
+
+1. Converting a foreign promise to a `ya-promise` promise is easy.
+```javascript
+function convert(foreign_promise){
+  var deferred = Y.defer()
+  foreign_promise.then(deferred.resolve, deferred.reject)
+  return deferred.promise
+}
+```
+
+2. There is no way to access to the internals of the `deferred` or `promise`
+   mechanisms. They are truely private.
+
+FIXME: THIS COULD BE A PROBLEM
 
 ## Benchmarks
 
