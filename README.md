@@ -28,38 +28,33 @@ executed using the [bench][bench] Node.js module.
 ## API
 
 ### Load Module
+
 ```javascript
 var Y = require("ya-promise")
 ```
+
 Load the library.
 
 
-### Convert a value or a foreign Promise (_thenable_[terminology]) to a Y Promise
+### Convert a value or Y Promise or a foreign Promise ([thenable][terminology]) to a Y Promise
+
 ```javascript
 Y(value_or_thanable)
 Y.when(value_or_thenable)
 ```
-Returns a `ya-promise` promise given a straight value or a
-[thenable][terminology].
 
-### Convert a **node-style** async function to a **promise-style** async function.
-```javascript
-promiseFn = Y.promisify(nodeFn)
-promiseFn = Y.nfbind(nodeFn)
-```
-A **node-style** async function looks like this
-```javascript
-nodeFn(arg0, arg1, function(err, res0, res1){ ... })
-```
-where the return value of `nodeFn` is usually `undefined`.
+Returns a `ya-promise` promise given a straight value or promise from
+`ya-promise` or [thenable][terminology].
 
-The corresponding **promise-style** async function look like this
-```javascript
-promise = promiseFn(arg0, arg1)
-promise.then(function([res0, res1]){ ... }, function(err){ ... })
-```
+If a `ya-promise` promise is passed in, it is returned unchanged.
+
+If a value is passed in a fulfilled `ya-promise` promise is returned.
+
+If a foreign [thenable][terminology] is passed in it is wrapped in a _deferred_
+and a `ya-promise` promise is returned.
 
 ### Create a Fulfilled or Rejected Promise
+
 ```javascript
 fulfilled_promise = Y.resolved(value)
 rejected_promise  = Y.rejected(reason)
@@ -72,14 +67,53 @@ Y.reolved(42).then( function(value){ value == 42 }
 Y.rejected("oops").then( function(value){/*never called*/}
                        , function(reason){ reason == "oops" })
 ```
+
+### Convert a **node-style** async function to a **promise-style** async function.
+
+```javascript
+promiseFn = Y.promisify(nodeFn)
+promiseFn = Y.nfbind(nodeFn)
+```
+A **node-style** async function looks like this
+
+```javascript
+nodeFn(arg0, arg1, function(err, res0, res1){ ... })
+```
+where the return value of `nodeFn` is usually `undefined`.
+
+The corresponding **promise-style** async function look like this
+
+```javascript
+promise = promiseFn(arg0, arg1)
+promise.then(function([res0, res1]){ ... }, function(err){ ... })
+```
+
+However, for a **node-style** async function that returns a single result,
+`Y.promisify(nodeFn)` does NOT return an single element array. For example:
+
+```javascript
+nodeFn(arg0, arg1, function(err, res0){ ... })
+```
+
+is converted to:
+
+```javascript
+promise = promiseFn(arg0, arg1)
+promise.then(function(res0){ ... }, function(err){ ... })
+```
+
+See `res0` is not wrapped in an array.
+
 ## Benchmarks
 
-It was just tested with the following simple script.
+`ya-promise` was just tested with the following simple script against a few
+other Promise/A+ libraries. (My results also included.)
 
 Remember "Lies, Statistics, and Benchmarks".
 
 ```javascript
 var Y = require('ya-promise')
+  , Q = require('q')
   , Vow = require('vow')
   , P = require('p-promise')
   , promiscuous = require('promiscuous')
@@ -87,8 +121,15 @@ var Y = require('ya-promise')
 Y.nextTick = process.nextTick //force the use of process.nextTick
 
 exports.compare = {
- 'ya-promise' : function(done){
+  'ya-promise' : function(done){
     var d = Y.defer()
+      , p = d.promise
+    p.then(function(v){ return v+1 })
+    p.then(function(v){ done() })
+    d.resolve(0)
+  }
+, 'Q' : function(done){
+    var d = Q.defer()
       , p = d.promise
     p.then(function(v){ return v+1 })
     p.then(function(v){ done() })
@@ -117,6 +158,72 @@ exports.compare = {
 }
 
 require('bench').runMain()
+```
+
+### My Benchmark Results
+
+```
+{ http_parser: '1.0',
+  node: '0.10.4',
+  v8: '3.14.5.8',
+  ares: '1.9.0-DEV',
+  uv: '0.10.4',
+  zlib: '1.2.3',
+  modules: '11',
+  openssl: '1.0.1e' }
+Scores: (bigger is better)
+
+Vow
+Raw:
+ > 619.05994005994
+ > 620.7982017982018
+ > 618.0889110889111
+ > 605.2717282717283
+Average (mean) 615.8046953046953
+
+ya-promise
+Raw:
+ > 461.97002997003
+ > 456.5094905094905
+ > 457.46453546453546
+ > 452.87012987012986
+Average (mean) 457.20354645354644
+
+promiscuous
+Raw:
+ > 410.73226773226776
+ > 410.3096903096903
+ > 410.09190809190807
+ > 401.5804195804196
+Average (mean) 408.17857142857144
+
+p-promise
+Raw:
+ > 134.74725274725276
+ > 135.12687312687314
+ > 133.78921078921078
+ > 134.9010989010989
+Average (mean) 134.64110889110887
+
+Q
+Raw:
+ > 3.136863136863137
+ > 3.136863136863137
+ > 3.116883116883117
+ > 3.144855144855145
+Average (mean) 3.133866133866134
+
+Winner: Vow
+Compared with next highest (ya-promise), it's:
+25.76% faster
+1.35 times as fast
+0.13 order(s) of magnitude faster
+A LITTLE FASTER
+
+Compared with the slowest (Q), it's:
+99.49% faster
+196.5 times as fast
+2.29 order(s) of magnitude faster
 ```
 
 ## Implementation
