@@ -67,6 +67,14 @@ Y.reolved(42).then( function(value){ value == 42 }
 Y.rejected("oops").then( function(value){/*never called*/}
                        , function(reason){ reason == "oops" })
 ```
+### Detect is an object ISA `ya-promise` deferred or promise.
+
+```javascript
+var d = Y.defer()
+  , p = d.promise
+Y.isDeferred( d ) // returns `true`
+Y.isPromise( p )  // returns `true`
+```
 
 ### Convert a **node-style** async function to a **promise-style** async function.
 
@@ -102,7 +110,7 @@ promise = promiseFn(arg0, arg1)
 promise.then(function(res0){ ... }, function(err){ ... })
 ```
 
-See `res0` is not wrapped in an array.
+Notice, `res0` is not wrapped in an array.
 
 ## Benchmarks
 
