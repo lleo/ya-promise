@@ -32,6 +32,47 @@ var Y = require("ya-promise")
 Load the library.
 
 
+### Create a Deferred & Promise
+
+```javascript
+deferred = Y.defer()
+// or
+deferred = Y.deferred()
+
+promise = deferred.promise
+```
+
+### Promise Then
+
+```javascript
+promise.then(onFulfililled, onRejected)
+```
+
+This library does NOT support `onProgress`. You can have a function as the
+third argument to `promise.then()` but it will never be called.
+
+### Resolve a Deferred
+
+```javascript
+deferred.resolve(value)
+```
+
+Causes:
+1. all `onFulfilled` functions to be called with `value` via `Y.nextTick`.
+2. the `promise` to change to a `fulfilled` state as the [Promise/A+ spec][promsiseAplus] requires.
+3. further calls to `deferred.resolve()` or `deferred.reject()` to be ignored.
+
+### Reject a Deferred
+
+```javascript
+deferred.reject(value)
+```
+
+Causes:
+1. all `onRejected` functions to be called with `value` via `Y.nextTick`.
+2. the `promise` to change to a `rejected` state as the [Promise/A+ spec][AplusSpec] requires.
+3. further calls to `deferred.resolve()` or `deferred.reject()` to be ignored.
+
 ### Convert a value or Y Promise or a foreign Promise ([thenable][terminology]) to a Y Promise
 
 ```javascript
@@ -320,6 +361,15 @@ by half and take _advantage_ of the fact that `deferred.resolve`,
 "close over" `deffered` and `promise` as well.
 
 ## Links
+
+[Promise/A+ Specification][AplusSpec]
+[Promise/A+ Test Suite][AplusTest]
+[p-promise NPM module][p-promise]
+[promiscuous NPM mdule[promiscuous]
+[Q NPM module][Q]
+[bench NPM module][bench]
+[Promise/A+ terminology][terminology]
+[tl;dr definition][tldr]
 
 [AplusSpec]: http://promises-aplus.github.io/promises-spec/
   "Promise/A+ Specification"
