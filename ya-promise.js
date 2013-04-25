@@ -102,17 +102,29 @@
 
      function Deferred(){
        var q = []
-         , promise = new Promise(pending)
+         , promise = new Promise(then, spread)
          , deferred = { promise: promise
                       , resolve: resolve
                       , reject : reject  }
 
-       function pending(onFulfilled, onRejected){
+       function then(onFulfilled, onRejected){
          var d = new Deferred()
 
          q.push({ deferred  : d
                 , fulfilled : onFulfilled
-                , rejected  : onRejected })
+                , rejected  : onRejected
+                , spread    : false })
+
+         return d.promise
+       }
+
+       function spread(onFulfilled, onRejected){
+         var d = new Deferred()
+
+         q.push({ deferred  : d
+                , fulfilled : onFulfilled
+                , rejected  : onRejected
+                , spread    : true })
 
          return d.promise
        }
@@ -122,7 +134,8 @@
            if (typeof q[i].fulfilled !== 'function')
              q[i].deferred.resolve(value)
            else
-             execute(q[i].fulfilled, value, q[i].deferred)
+             execute(q[i].fulfilled, value, q[i].deferred, q[i].spread)
+             //execute(q[i].fulfilled, value, q[i].deferred, true)
          }
 
          deferred.reject = deferred.resolve = noop
@@ -135,7 +148,7 @@
            if (typeof q[i].rejected !== 'function')
              q[i].deferred.reject(reason)
            else
-             execute(q[i].rejected, reason, q[i].deferred)
+             execute(q[i].rejected, reason, q[i].deferred, false)
          }
 
          deferred.reject = deferred.resolve = noop
@@ -146,8 +159,9 @@
        return deferred
      } //Deferred()
 
-     function Promise(then) {
+     function Promise(then, spread) {
        this.then = then
+       this.spread = spread
      } //Promise()
 
      function createFulfilled(promise, value) {
@@ -170,11 +184,14 @@
 
      function noop(){}
 
-     function execute(callback, value, deferred) {
+     function execute(callback, value, deferred, spread) {
        nextTick(function(){
          var result
          try {
-           result = callback(value)
+           if ( spread && Array.isArray(value) )
+             result = callback.apply(void(0), value)
+           else
+             result = callback(value)
            if (result && typeof result.then == 'function')
              result.then(deferred.resolve, deferred.reject)
            else
