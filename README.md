@@ -48,7 +48,7 @@ deferred = Y.deferred()
 promise = deferred.promise
 ```
 
-### Promise Then
+### Promise `then`
 
 ```javascript
 promise.then(onFulfililled, onRejected)
@@ -56,6 +56,16 @@ promise.then(onFulfililled, onRejected)
 
 This library does NOT support `onProgress`. You can have a function as the
 third argument to `promise.then()` but it will never be called.
+
+### Promise `spread`
+
+```javascript
+promise.spread(onFulfilled, onRejected)
+```
+
+When `onFulfilled` is called the `value` will be spread as arguments to
+the functions via `onFulfilled.apply(undefined, value)` rather than
+`onFulfilled(value)`.
 
 ### Resolve a Deferred
 
@@ -112,7 +122,7 @@ Y.reolved(42).then( function(value){ value == 42 }
 Y.rejected("oops").then( function(value){/*never called*/}
                        , function(reason){ reason == "oops" })
 ```
-### Detect is an object ISA `ya-promise` deferred or promise.
+### Detect if an object ISA `ya-promise` Deferred or Promise.
 
 ```javascript
 var d = Y.defer()
@@ -228,55 +238,55 @@ Scores: (bigger is better)
 
 Vow
 Raw:
- > 619.05994005994
- > 620.7982017982018
- > 618.0889110889111
- > 605.2717282717283
-Average (mean) 615.8046953046953
-
-ya-promise
-Raw:
- > 461.97002997003
- > 456.5094905094905
- > 457.46453546453546
- > 452.87012987012986
-Average (mean) 457.20354645354644
+ > 593.063936063936
+ > 597.1928071928072
+ > 607.999000999001
+ > 604.5444555444556
+Average (mean) 600.70004995005
 
 promiscuous
 Raw:
- > 410.73226773226776
- > 410.3096903096903
- > 410.09190809190807
- > 401.5804195804196
-Average (mean) 408.17857142857144
+ > 402.68431568431566
+ > 398.86013986013984
+ > 398.8851148851149
+ > 401.8061938061938
+Average (mean) 400.55894105894106
+
+ya-promise
+Raw:
+ > 399.93806193806194
+ > 396.82917082917083
+ > 387.72427572427574
+ > 396.3046953046953
+Average (mean) 395.19905094905096
 
 p-promise
 Raw:
- > 134.74725274725276
- > 135.12687312687314
- > 133.78921078921078
- > 134.9010989010989
-Average (mean) 134.64110889110887
+ > 133.1098901098901
+ > 134.56043956043956
+ > 134.16683316683316
+ > 133.2067932067932
+Average (mean) 133.76098901098902
 
 Q
 Raw:
- > 3.136863136863137
- > 3.136863136863137
- > 3.116883116883117
- > 3.144855144855145
-Average (mean) 3.133866133866134
+ > 3.3366533864541834
+ > 3.3716283716283715
+ > 3.3846153846153846
+ > 3.3506493506493507
+Average (mean) 3.3608866233368224
 
 Winner: Vow
-Compared with next highest (ya-promise), it's:
-25.76% faster
-1.35 times as fast
-0.13 order(s) of magnitude faster
+Compared with next highest (promiscuous), it's:
+33.32% faster
+1.5 times as fast
+0.18 order(s) of magnitude faster
 A LITTLE FASTER
 
 Compared with the slowest (Q), it's:
-99.49% faster
-196.5 times as fast
-2.29 order(s) of magnitude faster
+99.44% faster
+178.73 times as fast
+2.25 order(s) of magnitude faster
 ```
 
 This is not fair to `p-promise` because it uses `setImmediate` if avalable.
@@ -307,7 +317,7 @@ exports.compare = {
 require('bench').runMain()
 ```
 
-Please be patient.
+```
 { http_parser: '1.0',
   node: '0.10.4',
   v8: '3.14.5.8',
@@ -320,26 +330,26 @@ Scores: (bigger is better)
 
 p-promise
 Raw:
- > 133.14085914085913
- > 133.13872255489022
- > 133.82217782217782
- > 134.4815184815185
-Average (mean) 133.64581949986143
+ > 133.78121878121877
+ > 136.0979020979021
+ > 137.86713286713288
+ > 139.1988011988012
+Average (mean) 136.73626373626374
 
 ya-promise
 Raw:
- > 112.26373626373626
- > 113.13386613386614
- > 113.13086913086913
- > 113.54445554445554
-Average (mean) 113.01823176823177
+ > 108.32167832167832
+ > 98.51548451548452
+ > 106.22477522477523
+ > 106.47152847152847
+Average (mean) 104.88336663336663
 
 Winner: p-promise
 Compared with next highest (ya-promise), it's:
-15.43% faster
-1.18 times as fast
-0.07 order(s) of magnitude faster
-A LITTLE FASTER```
+23.3% faster
+1.3 times as fast
+0.12 order(s) of magnitude faster
+A LITTLE FASTER
 ```
 
 ## Implementation
