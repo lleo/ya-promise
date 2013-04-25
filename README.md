@@ -25,7 +25,7 @@ The advatages of this library to you that other libraries may or may not have:
     * There are no special/undocumented arguments to `.resolve`, `.reject`, or
       `.then` functions.
 1. User settable `Y.nextTick` for your own optimizations or usage patterns.
-2. Y.nextTick comes with reasonable/plausable defaults.
+2. `Y.nextTick` comes with reasonable/plausable defaults.
 3. Additional helper functions are implemented that do not impact performance.
 
 ## API
@@ -66,7 +66,7 @@ deferred.resolve(value)
 Causes:
 
 1. all `onFulfilled` functions to be called with `value` via `Y.nextTick`.
-2. the `promise` to change to a `fulfilled` state as the [Promise/A+ spec][promsiseAplus] requires.
+2. the `promise` to change to a `fulfilled` state as the [Promise/A+ spec][AplusSpec] requires.
 3. further calls to `deferred.resolve()` or `deferred.reject()` to be ignored.
 
 ### Reject a Deferred
