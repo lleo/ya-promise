@@ -101,68 +101,61 @@
        Y.nextTick = function(fn){ setTimeout(fn, 0) }
 
      function Deferred(){
-       var q = []
-         , promise = new Promise(then, spread)
-         , deferred = { promise: promise
-                      , resolve: resolve
-                      , reject : reject  }
-
-       function then(onFulfilled, onRejected){
-         var d = new Deferred()
-
-         q.push({ deferred  : d
-                , fulfilled : onFulfilled
-                , rejected  : onRejected
-                , spread    : false })
-
-         return d.promise
-       }
-
-       function spread(onFulfilled, onRejected){
-         var d = new Deferred()
-
-         q.push({ deferred  : d
-                , fulfilled : onFulfilled
-                , rejected  : onRejected
-                , spread    : true })
-
-         return d.promise
-       }
-
-       function resolve(value){
-         for (var i=0; i<q.length; i++) {
-           if (typeof q[i].fulfilled !== 'function')
-             q[i].deferred.resolve(value)
-           else
-             execute(q[i].fulfilled, value, q[i].deferred, q[i].spread)
-             //execute(q[i].fulfilled, value, q[i].deferred, true)
-         }
-
-         deferred.reject = deferred.resolve = noop
-
-         promise.then = createFulfilled(promise, value)
-       }
-
-       function reject(reason){
-         for (var i=0; i<q.length; i++) {
-           if (typeof q[i].rejected !== 'function')
-             q[i].deferred.reject(reason)
-           else
-             execute(q[i].rejected, reason, q[i].deferred, false)
-         }
-
-         deferred.reject = deferred.resolve = noop
-
-         promise.then = createRejected(promise, reason)
-       }
-
-       return deferred
+       this.q = []
+       this.promise = new Promise( this.q )
      } //Deferred()
 
-     function Promise(then, spread) {
-       this.then = then
-       this.spread = spread
+     Deferred.prototype.resolve = function(value){
+       for (var i=0; i<this.q.length; i++) {
+         if (typeof this.q[i].fulfilled !== 'function')
+           this.q[i].deferred.resolve(value)
+         else
+           execute(this.q[i].fulfilled, value, this.q[i].deferred, this.q[i].spread)
+       }
+
+       this.reject = this.resolve = noop
+
+       this.promise.then = createFulfilled(this.promise, value)
+     }
+
+     Deferred.prototype.reject = function(reason){
+       for (var i=0; i<this.q.length; i++) {
+         if (typeof this.q[i].rejected !== 'function')
+           this.q[i].deferred.reject(reason)
+         else
+           execute(this.q[i].rejected, reason, this.q[i].deferred, false)
+       }
+
+       this.reject = this.resolve = noop
+
+       this.promise.then = createRejected(this.promise, reason)
+     }
+
+     function Promise(q) {
+       this.q = q
      } //Promise()
+
+     Promise.prototype.then = function(onFulfilled, onRejected){
+       var d = new Deferred()
+
+       this.q.push({ deferred  : d
+                   , fulfilled : onFulfilled
+                   , rejected  : onRejected
+                   , spread    : false })
+
+       return d.promise
+     }
+
+     Promise.prototype.spread = function(onFulfilled, onRejected){
+       var d = new Deferred()
+
+       this.q.push({ deferred  : d
+                   , fulfilled : onFulfilled
+                   , rejected  : onRejected
+                   , spread    : true })
+
+       return d.promise
+     }
 
      function createFulfilled(promise, value) {
        return function fulfilled(onFulfilled, onRejected){
@@ -192,8 +185,10 @@
              result = callback.apply(void(0), value)
            else
              result = callback(value)
+
            if (result && typeof result.then == 'function')
-             result.then(deferred.resolve, deferred.reject)
+             result.then( function(v) { deferred.resolve(v) }
+                        , function(r) { deferred.reject(r)  })
            else
              deferred.resolve(result)
          } catch (err) {
