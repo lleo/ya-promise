@@ -1,6 +1,6 @@
 {
   "name"        : "ya-promise"
-, "version"     : "0.7.0"
+, "version"     : "0.8.0"
 , "description" : "Yet Another promise/A+ library"
 , "keywords"    : ["defer", "deferred", "promise", "promise/A", "promise/A+"
 		  , "A+", "nodejs", "browser" ]
@@ -12,9 +12,11 @@
 , "author"      : { "name": "LLeo"
                   , "email": "lleoem@gmail.com"
                   , "url": "http://lleo-blog.blogspot.com/" }
-, "main"        : "lib/deferred.js"
-, "scripts"     : { "test": "promises-aplus-tests test/adapter" }
+, "main"        : "ya-promise.js"
+, "scripts"     : { "test": "promises-aplus-tests test/adapter"
+		  , "posttest": "uglifyjs ya-promise.js -o ya-promise.min.js -m" }
 , "dependencies": {}
-, "devDependencies": { "promises-aplus-tests" : ">=1.3.1" }
+, "devDependencies": { "promises-aplus-tests" : ">=1.3.1"
+                     , "uglify-js": ">= 2.2.5" }
 , "engines"     : { "node" : ">=0.10.0" }
 }

@@ -19,11 +19,7 @@ The goals were to create a Promse/A+ library:
 
 4. speed.
 
-Additional helper functions are implemented that do not impact performance. As
-for performance, this library performs better than [p-promise v0.1.4][p-promise],
-[promiscuous v0.3.0][promiscuous], and (_WAY better_) [Q v0.9.3][Q]. The phrase
-_"performs better"_ just means that a simple *defer/then/resolve* loop was
-executed using the [bench][bench] Node.js module.
+Additional helper functions are implemented that do not impact performance.
 
 ## API
 

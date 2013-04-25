@@ -102,11 +102,20 @@
 
      function Deferred(){
        var q = []
-         , promise = new Promise(q)
+         , promise = new Promise(pending)
          , deferred = { promise: promise
                       , resolve: resolve
-                      , reject : reject
-                      }
+                      , reject : reject  }
+
+       function pending(onFulfilled, onRejected){
+         var d = new Deferred()
+
+         q.push({ deferred  : d
+                , fulfilled : onFulfilled
+                , rejected  : onRejected })
+
+         return d.promise
+       }
 
        function resolve(value){
          for (var i=0; i<q.length; i++) {
@@ -137,18 +146,9 @@
        return deferred
      } //Deferred()
 
-     function Promise(q){
-       function pending(onFulfilled, onRejected){
-         var d = new Deferred()
-
-         q.push({ deferred  : d
-                , fulfilled : onFulfilled
-                , rejected  : onRejected })
-
-         return d.promise
-       }
-       return { then: pending }
-     } Promise()
+     function Promise(then) {
+       this.then = then
+     } //Promise()
 
      function createFulfilled(promise, value) {
        return function fulfilled(onFulfilled, onRejected){
