@@ -2,24 +2,31 @@
 
 ## Summary
 
-This library defaults to exporting a symbal `Y` (just like the `Q` module).
+This library defaults to exporting a symbol `Y` (just like the `Q` module).
 
 This library implements [the promise/A+ specfication][AplusSpec] and passes 
 [the Promise/A+ test suite][AplusTest].
 
-The goals were to create a Promse/A+ library:
+The goals were, in order of priority, to:
 
-1. using the _deferred_ pattern.
-
-2. defaulting to `setImmediate` due to Node.js v0.10+ warning about recursive
+0. for me to understand promises better ;)
+1. implement the [Promise/A+ Spec][AplusSpec] and pass the tests[AplusTest]
+2. using the _deferred_ pattern.
+3. defaulting to `setImmediate` due to Node.js v0.10+ warning about recursive
    calls to `process.nextTick`. And I needed to use VERY deep promise
    chains/sequences..
+4. allow for overriding this _nextTick_-like behaviour as needed.
+5. speed.
 
-3. allow for overriding this _nextTick_-like behaviour as needed.
+The advatages of this library to you that other libraries may or may not have:
 
-4. speed.
-
-Additional helper functions are implemented that do not impact performance.
+0. Complete data hiding.
+    * There is no way to access a promises' the internal queue of pending functions
+    * There are no special/undocumented arguments to `.resolve`, `.reject`, or
+      `.then` functions.
+1. User settable `Y.nextTick` for your own optimizations or usage patterns.
+2. Y.nextTick comes with reasonable/plausable defaults.
+3. Additional helper functions are implemented that do not impact performance.
 
 ## API
 
@@ -30,7 +37,6 @@ var Y = require("ya-promise")
 ```
 
 Load the library.
-
 
 ### Create a Deferred & Promise
 
@@ -58,6 +64,7 @@ deferred.resolve(value)
 ```
 
 Causes:
+
 1. all `onFulfilled` functions to be called with `value` via `Y.nextTick`.
 2. the `promise` to change to a `fulfilled` state as the [Promise/A+ spec][promsiseAplus] requires.
 3. further calls to `deferred.resolve()` or `deferred.reject()` to be ignored.
@@ -69,6 +76,7 @@ deferred.reject(value)
 ```
 
 Causes:
+
 1. all `onRejected` functions to be called with `value` via `Y.nextTick`.
 2. the `promise` to change to a `rejected` state as the [Promise/A+ spec][AplusSpec] requires.
 3. further calls to `deferred.resolve()` or `deferred.reject()` to be ignored.
@@ -271,6 +279,69 @@ Compared with the slowest (Q), it's:
 2.29 order(s) of magnitude faster
 ```
 
+This is not fair to `p-promise` because it uses `setImmediate` if avalable.
+
+So here is the fair comparison:
+
+```javascript
+var Y = require('ya-promise')
+  , P = require('p-promise')
+
+exports.compare = {
+  'ya-promise' : function(done){
+    var d = Y.defer()
+      , p = d.promise
+    p.then(function(v){ return v+1 })
+    p.then(function(v){ done() })
+    d.resolve(0)
+  }
+, 'p-promise' : function(done){
+    var d = P.defer()
+      , p = d.promise
+    p.then(function(v){ return v+1 })
+    p.then(function(v){ done() })
+    d.resolve(0)
+  }
+}
+
+require('bench').runMain()
+```
+
+Please be patient.
+{ http_parser: '1.0',
+  node: '0.10.4',
+  v8: '3.14.5.8',
+  ares: '1.9.0-DEV',
+  uv: '0.10.4',
+  zlib: '1.2.3',
+  modules: '11',
+  openssl: '1.0.1e' }
+Scores: (bigger is better)
+
+p-promise
+Raw:
+ > 133.14085914085913
+ > 133.13872255489022
+ > 133.82217782217782
+ > 134.4815184815185
+Average (mean) 133.64581949986143
+
+ya-promise
+Raw:
+ > 112.26373626373626
+ > 113.13386613386614
+ > 113.13086913086913
+ > 113.54445554445554
+Average (mean) 113.01823176823177
+
+Winner: p-promise
+Compared with next highest (ya-promise), it's:
+15.43% faster
+1.18 times as fast
+0.07 order(s) of magnitude faster
+A LITTLE FASTER```
+```
+
 ## Implementation
 
 ### Performance Lessons Learned
@@ -355,8 +426,8 @@ function compareThens(){
 }
 ```
 
-Advice: Screw Nike comercials, "Just DON'T Do It". Don't try to be too clever
-by half and take _advantage_ of the fact that `deferred.resolve`,
+Advice: Screw Nike comercials, "Just DON'T Do It". Don't try to be _too clever
+by half_ and take _advantage_ of the fact that `deferred.resolve`,
 `deferred.reject`, and `promise.then` are closures not methods because they
 "close over" `deffered` and `promise` as well.
 
