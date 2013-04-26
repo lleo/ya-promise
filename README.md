@@ -10,7 +10,7 @@ This library implements [the promise/A+ specfication][AplusSpec] and passes
 The goals were, in order of priority, to:
 
 0. for me to understand promises better ;)
-1. implement the [Promise/A+ Spec][AplusSpec] and pass the tests[AplusTest]
+1. implement the [Promise/A+ Spec][AplusSpec] and pass the [tests][AplusTest]
 2. using the _deferred_ pattern.
 3. defaulting to `setImmediate` due to Node.js v0.10+ warning about recursive
    calls to `process.nextTick`. And I needed to use VERY deep promise
@@ -22,11 +22,49 @@ The advatages of this library to you that other libraries may or may not have:
 
 0. Complete data hiding.
     * There is no way to access a promises' the internal queue of pending functions
-    * There are no special/undocumented arguments to `.resolve`, `.reject`, or
-      `.then` functions.
+    * There are no special/undocumented arguments to `.resolve`, `.reject`,
+      `.then`, or `.spread` functions.
 1. User settable `Y.nextTick` for your own optimizations or usage patterns.
-2. `Y.nextTick` comes with reasonable/plausable defaults.
+2. `Y.nextTick` comes with reasonable default.
 3. Additional helper functions are implemented that do not impact performance.
+
+## Quick Review of the **deferred** pattern
+
+A `deferred` is an object coupled with a `promise` object. The `deferred`
+object is responsible for resolving (also known as fulfilling) and rejecting
+the the `promise`.
+
+The `promise` is the object with the `then` method. (It also has the `spread`
+method which is the same as the `then` method but handles the `onFulfilled`
+callback slightly differently.)
+
+The two objects are coupled together by a queue of `(onFulfilled, onResolved)`
+tuples. The `promise.then` and `promise.spread` methods build up the queue.
+The `deferred.resolve` and `deferred.reject` methods dispatch the queue _once
+and only once_.
+
+Here is an example in the form of the `V.promisify` function:
+
+```javascript
+function promisify(nodeFn, thisObj){
+  return function(){
+    var args = Array.prototype.slice.call(arguments)
+      , d = Y.defer()
+
+    args.push(function(err){
+      if (err) { d.reject(err); return }
+      if (arguments.length > 2)
+        d.resolve(Array.prototype.slice.call(arguments, 1))
+      else
+        d.resolve(arguments[1])
+    })
+
+    nodeFn.apply(thisObj, args)
+
+    return d.promise
+  }
+}
+```
 
 ## API
 
@@ -63,9 +101,8 @@ third argument to `promise.then()` but it will never be called.
 promise.spread(onFulfilled, onRejected)
 ```
 
-When `onFulfilled` is called the `value` will be spread as arguments to
-the functions via `onFulfilled.apply(undefined, value)` rather than
-`onFulfilled(value)`.
+When `onFulfilled` is called, and `value` is an `Array`, `value` will be spread
+as arguments to the function via `onFulfilled.apply(undefined, value)` rather than `onFulfilled(value)`.
 
 ### Resolve a Deferred
 
@@ -91,15 +128,14 @@ Causes:
 2. the `promise` to change to a `rejected` state as the [Promise/A+ spec][AplusSpec] requires.
 3. further calls to `deferred.resolve()` or `deferred.reject()` to be ignored.
 
-### Convert a value or Y Promise or a foreign Promise ([thenable][terminology]) to a Y Promise
+### Convert a value or a foreign Promise ([thenable][terminology]) to a Y Promise
 
 ```javascript
 Y(value_or_thanable)
 Y.when(value_or_thenable)
 ```
 
-Returns a `ya-promise` promise given a straight value or promise from
-`ya-promise` or [thenable][terminology].
+Returns a `ya-promise` promise given a straight value or [thenable][terminology].
 
 If a `ya-promise` promise is passed in, it is returned unchanged.
 
