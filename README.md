@@ -32,7 +32,7 @@ The advatages of this library to you that other libraries may or may not have:
 
 A `deferred` is an object coupled with a `promise` object. The `deferred`
 object is responsible for resolving (also known as fulfilling) and rejecting
-the the `promise`.
+the `promise`.
 
 The `promise` is the object with the `then` method. (It also has the `spread`
 method which is the same as the `then` method but handles the `onFulfilled`
