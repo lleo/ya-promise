@@ -77,6 +77,7 @@ var Y = require("ya-promise")
 Load the library.
 
 ### Create a Deferred & Promise
+Q-alike: [`Q.defer()`][Qdefer]
 
 ```javascript
 deferred = Y.defer()
@@ -117,6 +118,7 @@ Causes:
 3. further calls to `deferred.resolve()` or `deferred.reject()` to be ignored.
 
 ### Reject a Deferred
+Q-alike: [`Q.reject()`][Qreject]
 
 ```javascript
 deferred.reject(value)
@@ -129,6 +131,8 @@ Causes:
 3. further calls to `deferred.resolve()` or `deferred.reject()` to be ignored.
 
 ### Convert a value or a foreign Promise ([thenable][terminology]) to a Y Promise
+Q-alike: [`Q()`][Qfunc]
+Q-alike: [`Q.when()`][Qwhen]
 
 ```javascript
 Y(value_or_thanable)
@@ -542,3 +546,7 @@ by half_ and take _advantage_ of the fact that `deferred.resolve`,
   "Promise/A+ terminology"
 [tldr]: http://www.urbandictionary.com/define.php?term=tl%3Bdr
   "to long; don't read"
+[Qfunc]: https://github.com/kriskowal/q/wiki/API-Reference#qvalue
+[Qdefer]: https://github.com/kriskowal/q/wiki/API-Reference#qdefer
+[Qreject]: https://github.com/kriskowal/q/wiki/API-Reference#qrejectreason
+[Qwhen]: https://github.com/kriskowal/q#the-middle

@@ -83,6 +83,10 @@
        return d.promise
      }
 
+     Y.delay = function(ms){
+       return Y.resolved().delay(ms)
+     }
+
      Y.promisify = promisify
 
      Y.nfbind = promisify
@@ -175,6 +179,30 @@
        this.then = then
        this.spread = spread
      } //Promise()
+
+     Promise.prototype.timeout = function(ms){
+       var d = Y.defer()
+         , toid = setTimeout(function(){
+                    //d.reject(new Error("Timed out after " + ms + " ms"))
+                    d.reject("Timed out after " + ms + " ms")
+                  }, ms)
+
+       if (typeof toid.unref === 'function') toid.unref()
+
+       this.then( function(v){ clearTimeout(toid); d.resolve(v) }
+                , function(r){ clearTimeout(toid); d.reject(r)  } )
+
+       return d.promise
+     }
+
+     Promise.prototype.delay = function(ms){
+       var self = this
+         , d = Y.defer()
+
+       setTimeout(function(){ d.resolve(self) }, ms)
+
+       return d.promise
+     }
 
      function createFulfilled(promise, value, spread) {
        spread = spread || false
