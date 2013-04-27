@@ -1,6 +1,6 @@
 {
   "name"        : "ya-promise"
-, "version"     : "0.10.0"
+, "version"     : "0.11.0"
 , "description" : "Yet Another promise/A+ library"
 , "keywords"    : ["defer", "deferred", "promise", "promise/A", "promise/A+"
 		  , "A+", "nodejs", "browser" ]
