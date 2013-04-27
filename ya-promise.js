@@ -88,8 +88,8 @@
      }
 
      Y.promisify = promisify
-
      Y.nfbind = promisify
+     Y.denodeify = promisify
 
      Y.isPromise  = function(p){ return p instanceof Promise }
      Y.isDeferred = function(p){ return p instanceof Deferred }

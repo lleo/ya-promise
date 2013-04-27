@@ -149,6 +149,7 @@ If a foreign [thenable][terminology] is passed in it is wrapped in a _deferred_
 and a `ya-promise` promise is returned.
 
 ### Create a Promise from an Array of Promises
+Q-alike: [`Q.all()`][Qall]
 
 ```javascript
 Y.all([promA, promB, promC]).then( function([resA, resB, resC]){ ... }
@@ -187,6 +188,7 @@ Y.all([ timeout(10, "one")
 ```
 
 ### Create a Fulfilled or Rejected Promise
+Q-alike: [`Q.reject()`][Qreject]
 
 ```javascript
 fulfilled_promise = Y.resolved(value)
@@ -201,6 +203,7 @@ Y.rejected("oops").then( function(value){/*never called*/}
                        , function(reason){ reason == "oops" })
 ```
 ### Detect if an object ISA `ya-promise` Deferred or Promise.
+Q-alike: [`Q.isPromise()`][Qispromise]
 
 ```javascript
 var d = Y.defer()
@@ -210,10 +213,13 @@ Y.isPromise( p )  // returns `true`
 ```
 
 ### Convert a **node-style** async function to a **promise-style** async function.
+Q-alike: [`Q.denodeify`][Qdenodeify]
+Q-alike: [`Q.nfbind`][Qdenodeify]
 
 ```javascript
 promiseFn = Y.promisify(nodeFn)
 promiseFn = Y.nfbind(nodeFn)
+promiseFn = Y.denodeify(nodeFn)
 ```
 A **node-style** async function looks like this
 
@@ -550,3 +556,6 @@ by half_ and take _advantage_ of the fact that `deferred.resolve`,
 [Qdefer]: https://github.com/kriskowal/q/wiki/API-Reference#qdefer
 [Qreject]: https://github.com/kriskowal/q/wiki/API-Reference#qrejectreason
 [Qwhen]: https://github.com/kriskowal/q#the-middle
+[Qall]: https://github.com/kriskowal/q/wiki/API-Reference#promiseall
+[Qispromise]: https://github.com/kriskowal/q/wiki/API-Reference#qispromisevalue
+[Qdenodeify]: https://github.com/kriskowal/q/wiki/API-Reference#qdenodeifynodefunc-args
