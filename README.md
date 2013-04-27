@@ -144,13 +144,51 @@ If a value is passed in a fulfilled `ya-promise` promise is returned.
 If a foreign [thenable][terminology] is passed in it is wrapped in a _deferred_
 and a `ya-promise` promise is returned.
 
+### Create a Promise from an Array of Promises
+
+```javascript
+Y.all([promA, promB, promC]).then( function([resA, resB, resC]){ ... }
+                                 , function(reason){ ... } )
+```
+
+When all the promises in the array passed to `Y.all(array)` are resolved
+the returned promise is resolved. It value is an array of the results of
+each of the original promises in the same order.
+
+If ANY of the promises in the array are rejected then the returned promise
+is immediately rejected.
+
+Example:
+```javascript
+var Y = require('./')
+
+function timeout(n) {
+  var d = Y.defer(), t = n * Math.random()
+  setTimeout(function(){ d.resolve(t) }, t*1000 )
+  return d.promise
+}
+
+var t0 = Date.now()
+
+Y.all([ timeout(10, "one")
+      , timeout(10, "two")
+      , timeout(10, "three")
+      ])
+.then(function(a){
+  a.forEach(function(r, i){
+    console.log("%d: %d sec", i, r)
+  })
+  console.log("now-t0: %d sec", (Date.now()-t0)/1000)
+})
+```
+
 ### Create a Fulfilled or Rejected Promise
 
 ```javascript
 fulfilled_promise = Y.resolved(value)
 rejected_promise  = Y.rejected(reason)
 ```
-examples:
+Examples:
 ```javascript
 Y.reolved(42).then( function(value){ value == 42 }
                   , function(reason){/*never called*/})

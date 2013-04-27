@@ -72,6 +72,17 @@
        return d.promise
      }
 
+     Y.all = function(promises){
+       var n = 0, d = Y.defer(), res = []
+       promises.forEach(function(p, i){
+         n += 1
+         Y.when(p).then(
+           function(v){ n -= 1; res[i] = v; if (n === 0) d.resolve(res) }
+         , function(r){ d.reject(r) })
+       })
+       return d.promise
+     }
+
      Y.promisify = promisify
 
      Y.nfbind = promisify
@@ -135,12 +146,12 @@
              q[i].deferred.resolve(value)
            else
              execute(q[i].fulfilled, value, q[i].deferred, q[i].spread)
-             //execute(q[i].fulfilled, value, q[i].deferred, true)
          }
 
          deferred.reject = deferred.resolve = noop
 
-         promise.then = createFulfilled(promise, value)
+         promise.then = createFulfilled(promise, value, false)
+         promise.spread = createFulfilled(promise, value, true)
        }
 
        function reject(reason){
@@ -154,6 +165,7 @@
          deferred.reject = deferred.resolve = noop
 
          promise.then = createRejected(promise, reason)
+         promise.spread = createRejected(promise, reason)
        }
 
        return deferred
@@ -164,11 +176,12 @@
        this.spread = spread
      } //Promise()
 
-     function createFulfilled(promise, value) {
+     function createFulfilled(promise, value, spread) {
+       spread = spread || false
        return function fulfilled(onFulfilled, onRejected){
          var d
          if (typeof onFulfilled !== 'function') return promise
-         execute(onFulfilled, value, d = new Deferred())
+         execute(onFulfilled, value, d = new Deferred(), spread)
          return d.promise
        }
      }
@@ -177,7 +190,7 @@
        return function rejected(onFulfilled, onRejected){
          var d
          if (typeof onRejected !== 'function') return promise
-         execute(onRejected, reason, d = new Deferred())
+         execute(onRejected, reason, d = new Deferred(), false)
          return d.promise
        }
      }
@@ -192,8 +205,10 @@
              result = callback.apply(void(0), value)
            else
              result = callback(value)
+
            if (result && typeof result.then == 'function')
-             result.then(deferred.resolve, deferred.reject)
+             result.then( function(v) { deferred.resolve(v) }
+                        , function(r) { deferred.reject(r)  } )
            else
              deferred.resolve(result)
          } catch (err) {
