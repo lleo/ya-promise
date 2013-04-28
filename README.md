@@ -17,6 +17,7 @@ The goals were, in order of priority, to:
    chains/sequences..
 4. allow for overriding this _nextTick_-like behaviour as needed.
 5. speed.
+6. make it as Q-like as possible.
 
 The advatages of this library to you that other libraries may or may not have:
 
@@ -201,10 +202,23 @@ If `promise` is not resolved or rejected within that time limit, then
 the `promise` will be rejected with the reason set to 
 `"Timed out after " + ms + " ms"`.
 
+In node.js the `timeoutId` returned by `setTimeout` has a `unref` method that
+will prevent this timer from allowing the node.js event-loop to end. If
+`timeoutId` has a `unref` method, it is called.
+
 ### Delay a Promise
 Q-alike: [`promise.delay()`][Qpromisedelay]
 
-// START HERE
+```javascript
+delayed_promise = promise.delay(ms)
+```
+
+From the time where `delayed_promise` is created a timer is started for `ms`
+milliseconds. If `promise` is fulfilled or rejected within that timer then
+`delayed_promise` will not be resolved/rejected till the timer expires. If
+the timer has already expired `delayed_promise` will be resolved/rejected
+immediately. `delayed_promise` will always be resolved/rejected with the same
+value/reason `promise` was.
 
 ### Create a Promise whos Resolution is delayed
 Q-alike: [`Q.delay()`][Qdelay]
