@@ -118,9 +118,11 @@
      function Deferred(){
        var q = []
          , promise = new Promise(then, spread)
-         , deferred = { promise: promise
-                      , resolve: resolve
-                      , reject : reject  }
+         , deferred = this
+
+       this.promise = promise
+       this.resolve = resolve
+       this.reject  = reject
 
        function then(onFulfilled, onRejected){
          var d = new Deferred()
@@ -172,7 +174,6 @@
          promise.spread = createRejected(promise, reason)
        }
 
-       return deferred
      } //Deferred()
 
      function Promise(then, spread) {
@@ -196,12 +197,29 @@
      }
 
      Promise.prototype.delay = function(ms){
-       var self = this
-         , d = Y.defer()
+       var d = Y.defer()
+         , p = d.promise
+         , t0 = Date.now()
 
-       setTimeout(function(){ d.resolve(self) }, ms)
+       setTimeout(function(){  }, ms)
 
-       return d.promise
+       this.then(
+         function(v){
+           var sofar = Date.now() - t0
+           if ( ms - sofar > 0 )
+             setTimeout(function(){ d.resolve(v) }, ms - sofar)
+           else
+             d.resolve(v)
+         }
+       , function(r){
+           var sofar = Date.now() - t0
+           if ( ms - sofar > 0 )
+             setTimeout(function(){ d.reject(r) }, ms - sofar)
+           else
+             d.reject(r)
+         })
+
+       return p
      }
 
      function createFulfilled(promise, value, spread) {

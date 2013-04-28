@@ -187,6 +187,37 @@ Y.all([ timeout(10, "one")
 })
 ```
 
+### Timeout a Promise
+
+```javascript
+promise.timeout(ms).then(onFulfilled, onRejected)
+```
+
+If `promise` is resolved or rejected in less than `ms` milliseconds then
+`onFulfilled` or `onRejected` (respectively) will be called with the `value`
+or `reason` given.
+
+If `promise` is not resolved or rejected within that time limit, then 
+the `promise` will be rejected with the reason set to 
+`"Timed out after " + ms + " ms"`.
+
+### Delay a Promise
+Q-alike: [`promise.delay()`][Qpromisedelay]
+
+// START HERE
+
+### Create a Promise whos Resolution is delayed
+Q-alike: [`Q.delay()`][Qdelay]
+
+```javascript
+delayed = Y.delay(ms)
+```
+
+This is a promise-like version of `setTimeout()` but looks nicer.
+```javascript
+Y.delay(1000).then(doSomthing)
+```
+
 ### Create a Fulfilled or Rejected Promise
 Q-alike: [`Q.reject()`][Qreject]
 
@@ -559,3 +590,5 @@ by half_ and take _advantage_ of the fact that `deferred.resolve`,
 [Qall]: https://github.com/kriskowal/q/wiki/API-Reference#promiseall
 [Qispromise]: https://github.com/kriskowal/q/wiki/API-Reference#qispromisevalue
 [Qdenodeify]: https://github.com/kriskowal/q/wiki/API-Reference#qdenodeifynodefunc-args
+[Qpromisedelay]: https://github.com/kriskowal/q/wiki/API-Reference#promisedelayms
+[Qdelay]: https://github.com/kriskowal/q/wiki/API-Reference#qdelayms
