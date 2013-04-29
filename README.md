@@ -220,6 +220,39 @@ the timer has already expired `delayed_promise` will be resolved/rejected
 immediately. `delayed_promise` will always be resolved/rejected with the same
 value/reason `promise` was.
 
+### Create a promise with only an `onRejected`
+Q-alike: [`promise.catch()`][Qpromisecatch]
+Q-alike: [`promise.fail()`][Qpromisecatch]
+
+```javascript
+another_promise = promise.fail(onRejected)
+```
+
+I prefer the `promise.fail` version but I included the `promise.catch` as an
+alias.
+
+### Convert any `onRejected` or a throw error from a callback into a throw
+Q-alike: [`promise.done()`][Qpromisedone]
+
+This is really not exactly like Q's `promise.done()`. Unlike Q's
+`promise.done()` it takes NO arguments, but like Q's `promise.done()` it
+catches any rejected promise and throws the `reason` in the `nextTick`.
+
+Q's `promise.done()` is just like a `promise.then()` but the execution is
+slightly different in that any rejection is thrown as above.
+
+It is meant to be use as such:
+
+```javascript
+doSomething()
+.then(...)
+.then(...)
+.done() //<- this will throw any rejection that falls thru the above thens
+```
+
+It still returns a promise, so more thens can follow it, but any rejection
+that gets to it will throw an exception on the `nextTick`.
+
 ### Create a Promise whos Resolution is delayed
 Q-alike: [`Q.delay()`][Qdelay]
 
@@ -606,3 +639,5 @@ by half_ and take _advantage_ of the fact that `deferred.resolve`,
 [Qdenodeify]: https://github.com/kriskowal/q/wiki/API-Reference#qdenodeifynodefunc-args
 [Qpromisedelay]: https://github.com/kriskowal/q/wiki/API-Reference#promisedelayms
 [Qdelay]: https://github.com/kriskowal/q/wiki/API-Reference#qdelayms
+[Qpromisecatch]: https://github.com/kriskowal/q/wiki/API-Reference#promisecatchonrejected
+[Qpromisedone]: https://github.com/kriskowal/q/wiki/API-Reference#promisedoneonfulfilled-onrejected-onprogress

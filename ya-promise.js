@@ -222,6 +222,16 @@
        return p
      }
 
+     Promise.prototype.fail = function(onRejected){
+       return this.then(null, onRejected)
+     }
+
+     Promise.prototype.catch = Promise.prototype.fail
+
+     Promise.prototype.done = function(){
+       return this.fail(function(r){ nextTick(function(){ throw r }) })
+     }
+
      function createFulfilled(promise, value, spread) {
        spread = spread || false
        return function fulfilled(onFulfilled, onRejected){
