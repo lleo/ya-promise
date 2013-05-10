@@ -133,6 +133,7 @@ Causes:
 
 ### Convert a value or a foreign Promise ([thenable][terminology]) to a Y Promise
 Q-alike: [`Q()`][Qfunc]
+
 Q-alike: [`Q.when()`][Qwhen]
 
 ```javascript
@@ -222,17 +223,25 @@ value/reason `promise` was.
 
 ### Create a promise with only an `onRejected`
 Q-alike: [`promise.catch()`][Qpromisecatch]
+
 Q-alike: [`promise.fail()`][Qpromisecatch]
+
+alias: `.catch()`
 
 ```javascript
 another_promise = promise.fail(onRejected)
 ```
+
 
 I prefer the `promise.fail` version but I included the `promise.catch` as an
 alias.
 
 ### Convert any `onRejected` or a throw error from a callback into a throw
 Q-alike: [`promise.done()`][Qpromisedone]
+
+alias: `.throwOnReject()`
+
+alias: `.throw()`
 
 This is really not exactly like Q's `promise.done()`. Unlike Q's
 `promise.done()` it takes NO arguments, but like Q's `promise.done()` it
@@ -292,6 +301,7 @@ Y.isPromise( p )  // returns `true`
 
 ### Convert a **node-style** async function to a **promise-style** async function.
 Q-alike: [`Q.denodeify`][Qdenodeify]
+
 Q-alike: [`Q.nfbind`][Qdenodeify]
 
 ```javascript

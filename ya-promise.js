@@ -232,6 +232,9 @@
        return this.fail(function(r){ nextTick(function(){ throw r }) })
      }
 
+     Promise.prototype.throwOnReject = Promise.prototype.done
+     Promise.prototype.throw = Promise.prototype.done
+
      function createFulfilled(promise, value, spread) {
        spread = spread || false
        return function fulfilled(onFulfilled, onRejected){
